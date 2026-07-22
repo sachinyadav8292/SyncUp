@@ -41,7 +41,10 @@ export const useAuthStore = create((set, get) => ({
     set({ socket });
 
     socket.on("getOnlineUsers", (userIds) => {
-      set({ onlineUsers: userIds });
+      // Wrapped in setTimeout to prevent runtime production hydration mismatch error #418
+      setTimeout(() => {
+        set({ onlineUsers: userIds });
+      }, 0);
     });
   },
 
