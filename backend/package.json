@@ -2,9 +2,13 @@
   "name": "backend",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
-    "dev": "nodemon src/index.js"
+    "clean": "rimraf dist",
+    "build": "npm run clean && node -e \"fs.mkdirSync('dist'); fs.cpSync('src', 'dist', {recursive: true})\"",
+    "dev": "nodemon src/index.js",
+    "start": "node src/index.js",
+    "db:seed": "node src/seeds/user.seed.js"
   },
   "keywords": [],
   "author": "",
@@ -12,12 +16,18 @@
   "type": "commonjs",
   "dependencies": {
     "@clerk/express": "^2.1.43",
+    "@imagekit/nodejs": "^7.10.0",
     "cors": "^2.8.6",
+    "cron": "^4.4.0",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
-    "mongoose": "^9.7.4"
+    "mongoose": "^9.7.4",
+    "multer": "^2.2.0",
+    "socket.io": "^4.8.3",
+    "svix": "^1.98.0"
   },
   "devDependencies": {
-    "nodemon": "^3.1.14"
+    "nodemon": "^3.1.14",
+    "rimraf": "^6.0.1"
   }
 }
