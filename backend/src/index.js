@@ -18,12 +18,17 @@ const messageRoutes = require("./routes/message.route.js");
 const { app, server } = require("./lib/socket.js");
 
 const PORT = process.env.PORT || 5000;
-const FRONTEND_URL = process.env.FRONTEND_URL;
 
 const publicDir = path.join(process.cwd(), "public");
 
-// Apply Security Layer (CORS) globally first to protect ALL downstream routes
-app.use(cors({ origin: FRONTEND_URL, credentials: true }));
+// Updated global CORS layout config to explicitly accept all production and preview Vercel channels
+app.use(cors({ 
+  origin: [
+    "https://vercel.app",
+    "http://localhost:5173"
+  ], 
+  credentials: true 
+}));
 
 // Mount raw webhook parsing configuration BEFORE express.json() can intercept it
 app.use("/api/webhooks/clerk", express.raw({ type: "application/json" }), clerkWebhook);
