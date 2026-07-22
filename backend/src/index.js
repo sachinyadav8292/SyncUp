@@ -1,9 +1,10 @@
-require("dotenv").config(); // 1. Load environment variables first
+const path = require("path"); 
+// Force Node to look exactly inside your backend subfolder for the .env configuration
+require("dotenv").config({ path: path.resolve(__dirname, "../.env") }); 
 
 const express = require("express");
 const cors = require("cors");
 const fs = require("fs");
-const path = require("path");
 
 const { clerkMiddleware } = require("@clerk/express");
 
@@ -21,17 +22,17 @@ const FRONTEND_URL = process.env.FRONTEND_URL;
 
 const publicDir = path.join(process.cwd(), "public");
 
-// 2. Apply Security Layer (CORS) globally first to protect ALL downstream routes
+// Apply Security Layer (CORS) globally first to protect ALL downstream routes
 app.use(cors({ origin: FRONTEND_URL, credentials: true }));
 
-// 3. Mount raw webhook parsing configuration BEFORE express.json() can intercept it
+// Mount raw webhook parsing configuration BEFORE express.json() can intercept it
 app.use("/api/webhooks/clerk", express.raw({ type: "application/json" }), clerkWebhook);
 
-// 4. Mount global parsers and generic user identity authentication contexts
+// Mount global parsers and generic user identity authentication contexts
 app.use(express.json());
 app.use(clerkMiddleware());
 
-// 5. Mount API application route controllers
+// Mount API application route controllers
 app.get("/health", (req, res) => {
   res.status(200).json({ ok: true });
 });
@@ -39,7 +40,7 @@ app.get("/health", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/messages", messageRoutes);
 
-// 6. Serve static production client-side code fallback maps
+// Serve static production client-side code fallback maps
 if (fs.existsSync(publicDir)) {
   app.use(express.static(publicDir));
 
@@ -50,7 +51,7 @@ if (fs.existsSync(publicDir)) {
   });
 }
 
-// 7. Boot server process execution mapping pools
+// Boot server process execution mapping pools
 server.listen(PORT, () => {
   connectDB();
   console.log("Server is up and running on PORT:", PORT);
