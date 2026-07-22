@@ -6,20 +6,24 @@ import AuthPage from "./pages/AuthPage";
 import { useAuth } from "@clerk/react";
 import PageLoader from "./components/PageLoader";
 import { useAuthStore } from "./store/useAuthStore";
-import { useEffect } from "react";
+import { useEffect, useState } from "react"; // Added useState here
 
 import { Toaster } from "react-hot-toast";
 
 function App() {
   const { isSignedIn, isLoaded } = useAuth();
-
-  // option 1
-  // const { checkAuth, isCheckingAuth, clearAuth } = useAuthStore();
+  
+  // Safe mount tracker to kill React Hydration Error #418 dead in its tracks
+  const [isMounted, setIsMounted] = useState(false);
 
   // option 2 - better for performance
   const clearAuth = useAuthStore((state) => state.clearAuth);
   const checkAuth = useAuthStore((state) => state.checkAuth);
   const isCheckingAuth = useAuthStore((state) => state.isCheckingAuth);
+
+  useEffect(() => {
+    setIsMounted(true); // Confirms the component has mounted safely in the browser client
+  }, []);
 
   useEffect(() => {
     if (!isLoaded) return;
@@ -28,7 +32,10 @@ function App() {
     else clearAuth();
   }, [checkAuth, clearAuth, isLoaded, isSignedIn]);
 
-  if (!isLoaded || (isSignedIn && isCheckingAuth)) return <PageLoader />;
+  // Ensure loader shows if Clerk isn't ready, or if we are actively verifying backend auth session
+  if (!isLoaded || (isSignedIn && isCheckingAuth) || !isMounted) {
+    return <PageLoader />;
+  }
 
   return (
     <ThemeProvider>
