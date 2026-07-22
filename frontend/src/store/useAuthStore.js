@@ -2,7 +2,8 @@ import { create } from "zustand";
 import { axiosInstance } from "../lib/axios";
 import { io } from "socket.io-client";
 
-const BASE_URL = import.meta.env.MODE === "development" ? "http://localhost:3000" : "/";
+// Dynamically use your live Render backend URL from your environment configuration
+const BASE_URL = import.meta.env.VITE_BASE_URL || "http://localhost:3000";
 
 export const useAuthStore = create((set, get) => ({
   authUser: null,
@@ -34,6 +35,7 @@ export const useAuthStore = create((set, get) => ({
   connectSocket: (user) => {
     if (!user || get().socket?.connected) return;
 
+    // Connects directly to your production Socket server on Render
     const socket = io(BASE_URL, { query: { userId: user._id } });
 
     set({ socket });
