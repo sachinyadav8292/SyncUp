@@ -21,12 +21,22 @@ const PORT = process.env.PORT || 5000;
 
 const publicDir = path.join(process.cwd(), "public");
 
-// Updated global CORS layout config to explicitly accept all production and preview Vercel channels
+// List of explicitly trusted frontend layout endpoints
+const allowedOrigins = [
+  "https://sync-up-phi.vercel.app", 
+  "http://localhost:5173"
+];
+
+// Dynamic CORS configuration function to process cross-origin queries successfully
 app.use(cors({ 
-  origin: [
-    "https://vercel.app",
-    "http://localhost:5173"
-  ], 
+  origin: function (origin, callback) {
+    // Allow server-to-server or locally matching browser calls
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error("Blocked by SyncUp Security CORS Configuration Layer"));
+    }
+  },
   credentials: true 
 }));
 
